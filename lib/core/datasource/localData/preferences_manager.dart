@@ -38,14 +38,14 @@ class PreferencesManager {
   }
 
   //get
-  getString(String key) => _preferences.getString(key);
-  getStringList(String key) => _preferences.getStringList(key);
-  getBool(String key) => _preferences.getBool(key);
-  getInt(String key) => _preferences.getInt(key);
-  getDouble(String key) => _preferences.getDouble(key);
+  String? getString(String key) => _preferences.getString(key);
+  List<String>? getStringList(String key) => _preferences.getStringList(key);
+  bool? getBool(String key) => _preferences.getBool(key);
+  int? getInt(String key) => _preferences.getInt(key);
+  double? getDouble(String key) => _preferences.getDouble(key);
 
   //remove
-  remove(String key) => _preferences.remove(key);
+  Future<bool> remove(String key) => _preferences.remove(key);
   //clear
-  clear() => _preferences.clear();
+  Future<bool> clear() => _preferences.clear();
 }

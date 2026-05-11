@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newsapp/features/bookmark/book_mark_screen.dart';
-import 'package:newsapp/features/home/screen/home_screen.dart';
+import 'package:newsapp/features/home/presentation/screen/home_screen.dart';
 import 'package:newsapp/features/profile/profile_screen.dart';
 import 'package:newsapp/features/search/search_screen.dart';
 
@@ -15,7 +15,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> screens = [
-    const HomeScreen(),
+    HomeScreen(),
     const BookMarkScreen(),
     const SearchScreen(),
     const ProfileScreen(),

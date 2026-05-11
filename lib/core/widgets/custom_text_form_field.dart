@@ -1,15 +1,17 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:newsapp/core/constant/app_sizes.dart';
 
-class CustomTextFormFields extends StatelessWidget {
+class CustomTextFormFields extends StatefulWidget {
   const CustomTextFormFields({
     super.key,
     required this.title,
-    this.validator,
-    this.suffixe,
-
-    this.maxLines,
-    required this.hintText,
     required this.controller,
+    this.validator,
+    this.maxLines = 1,
+    required this.hintText,
+    this.suffixe,
+    this.obsecureText = false,
   });
   final String title;
   final TextEditingController controller;
@@ -17,26 +19,35 @@ class CustomTextFormFields extends StatelessWidget {
   final int? maxLines;
   final String? hintText;
   final Widget? suffixe;
+  final bool obsecureText;
+
+  @override
+  State<CustomTextFormFields> createState() => _CustomTextFormFieldsState();
+}
+
+class _CustomTextFormFieldsState extends State<CustomTextFormFields> {
+  bool isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.displaySmall),
-        const SizedBox(height: 8),
+        Text(widget.title, style: Theme.of(context).textTheme.displaySmall),
+         SizedBox(height: AppSizes.ph8),
         SizedBox(
-          width: 343,
-          height: 56,
+          width: AppSizes.w343,
+          height: AppSizes.h56,
           child: TextFormField(
-            controller: controller,
-            validator: validator,
+            controller: widget.controller,
+            obscureText: widget.obsecureText && !isPasswordVisible,
+            validator: widget.validator,
             style: Theme.of(context).textTheme.labelMedium,
 
             decoration: InputDecoration(
               fillColor: Colors.white,
               filled: true,
-              hintText: hintText,
+              hintText: widget.hintText,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.zero,
                 borderSide: BorderSide(color: Colors.grey.shade300),
@@ -49,7 +60,18 @@ class CustomTextFormFields extends StatelessWidget {
                 borderRadius: BorderRadius.zero,
                 borderSide: BorderSide(color: Colors.grey.shade300),
               ),
-              suffix: suffixe,
+              suffixIcon: widget.obsecureText
+                  ? IconButton(
+                      onPressed: () {
+                        setState(() {
+                          isPasswordVisible = !isPasswordVisible;
+                        });
+                      },
+                      icon: isPasswordVisible
+                          ? Icon(Icons.visibility)
+                          : Icon(Icons.visibility_off),
+                    )
+                  : null,
             ),
           ),
         ),
