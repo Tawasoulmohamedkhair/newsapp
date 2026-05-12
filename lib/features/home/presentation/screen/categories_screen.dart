@@ -38,7 +38,7 @@ class CategoriesScreen extends StatelessWidget {
 
                       return GestureDetector(
                         onTap: () {
-                          controller.changeCategory(category);
+                          controller.updateSelectedCategory(category);
                         },
                         child: IntrinsicWidth(
                           child: Column(

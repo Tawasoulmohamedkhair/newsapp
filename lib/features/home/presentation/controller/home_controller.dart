@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:newsapp/core/enum/enum_status.dart';
 import 'package:newsapp/core/error/failure.dart';
 import 'package:dartz/dartz.dart'; // Import Either
+import 'package:newsapp/core/mixin/safe_notify.dart';
 import 'package:newsapp/features/home/data/models/news_article_model.dart';
 import 'package:newsapp/features/home/domain/entities/news_article_entity.dart';
 import 'package:newsapp/features/home/domain/usecases/get_everything_usecase.dart';
 import 'package:newsapp/features/home/domain/usecases/get_top_headlines_usecase.dart';
 
-class HomeController extends ChangeNotifier {
+class HomeController extends ChangeNotifier with SafeNotify {
   final GetTopHeadlinesUseCase getTopHeadlinesUseCase;
   final GetEverythingUseCase getEverythingUseCase;
-   bool isDisposed = false; // Flag to track if the controller is disposed
+  
 
   HomeController({
     required this.getTopHeadlinesUseCase,
@@ -87,9 +88,9 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    isDisposed = true; // Set the flag to true when disposing
-    super.dispose();
+  void updateSelectedCategory(String category) {
+    selectedCategory = category;
+    getTopHeadLines();
+    safeNotify();
   }
 }

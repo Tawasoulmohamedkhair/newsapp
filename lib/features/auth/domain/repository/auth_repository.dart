@@ -1,4 +1,3 @@
-// lib/features/auth/domain/repositories/auth_repository.dart
 import 'package:dartz/dartz.dart';
 import 'package:newsapp/core/error/failure.dart';
 import 'package:newsapp/features/auth/domain/entities/user_entity.dart';

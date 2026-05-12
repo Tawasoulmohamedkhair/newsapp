@@ -102,23 +102,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       width: double.infinity,
                       height: AppSizes.h48,
                       child: CustomElevatedButton(
-                        onPressed: authProvider.isLoading
+            
+                       onPressed: authProvider.isLoading
                             ? null
                             : () async {
                                 if (!keyform.currentState!.validate()) return;
 
-                                      final success = await authProvider.register(
+                                final success = await authProvider.register(
                                   emailController.text.trim(),
                                   passwordController.text.trim(),
                                 );
 
-                                if (success) {
-                                  
-                                  if (context.mounted) {
-                                    context.go('/login');
-                                  }
-                                } else {
-                                  // عرض رسالة الخطأ
+                                
+                                if (!context.mounted) return;
+
+                                if (!success) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -128,6 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                   );
                                 }
+                        
                               },
                         label: Text(ConstantText.signup),
                       ),
@@ -161,21 +160,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-
-  Future<void> _submitRegister() async {
-    if (!keyform.currentState!.validate()) return;
-
-    final success = await authProvider.register(
-      emailController.text.trim(),
-      passwordController.text.trim(),
-    );
-
-    if (!success && authProvider.error != null && context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(authProvider.error!)));
-    } else if (success && context.mounted) {
-      context.go('/login');
-    }
-  }
 }

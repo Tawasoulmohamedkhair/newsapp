@@ -1,16 +1,13 @@
 import 'package:newsapp/features/onboarding/data/model/onboarding_model.dart';
 
-// 1. الـ Abstract بيرجع الـ Model الخام، مفيش Either ولا Failure
 abstract class OnboardingLocalDataSource {
   Future<List<OnboardingModel>> getOnboardingPages();
 }
 
 class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   @override
-  // 2. نفس الـ Signature: Future<List<OnboardingModel>>
   Future<List<OnboardingModel>> getOnboardingPages() async {
-    // 3. بما إن الداتا ثابتة (Static)، بنعملها async عشان نحافظ على الـ Signature
-    // وبنرجع اللستة عادي جداً
+   
     return const [
       OnboardingModel(
         image: 'assets/images/onboarding1.png',

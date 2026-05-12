@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:newsapp/core/error/failure.dart';
-import '../../../../core/usecases/usecase.dart';
-import '../repositories/onboarding_repository.dart';
+import 'package:newsapp/core/usecases/usecase.dart';
+import 'package:newsapp/features/onboarding/domain/repositories/onboarding_repository.dart';
 
 class CompleteOnboarding implements UseCase<void, NoParams> {
   final OnboardingRepository repository;

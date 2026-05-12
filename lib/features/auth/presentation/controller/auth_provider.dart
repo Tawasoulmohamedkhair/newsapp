@@ -1,41 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:newsapp/core/constant/constant_text.dart';
-import 'package:newsapp/core/datasource/localData/preferences_manager.dart';
-import 'package:newsapp/core/services/auth_service.dart';
-import 'package:newsapp/core/state/app_flow_controller.dart'; // Import this
+import 'package:newsapp/core/error/failure.dart';
+import 'package:newsapp/core/state/app_flow_controller.dart';
 import 'package:newsapp/core/utils/validators/app_validator.dart';
+import 'package:newsapp/features/auth/domain/entities/user_entity.dart';
+import 'package:newsapp/features/auth/domain/usecase/login_usecase.dart';
+import 'package:newsapp/features/auth/domain/usecase/register_usecase.dart'; // تأكدي إن عندك الملف ده
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService service;
-  final AppFlowController appFlowController; // Add this
+  
+  final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
+  final AppFlowController appFlowController;
 
-  // Update constructor
-  AuthProvider(this.service, this.appFlowController) {
+  AuthProvider({
+    required this.loginUseCase,
+    required this.registerUseCase,
+    required this.appFlowController,
+  }) {
     _listenAuth();
   }
 
   bool isLoading = false;
   String? error;
 
-  bool get isLoggedIn => service.user != null;
   String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return ConstantText.emailisrequired;
-    }
-    if (!AppValidator.isValidEmail(value)) {
-      return ConstantText.enteravalidemail;
-    }
+    if (value == null || value.isEmpty) return ConstantText.emailisrequired;
+    if (!AppValidator.isValidEmail(value)) return ConstantText.enteravalidemail;
     return null;
   }
 
   String? validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return ConstantText.passwordisrequired;
-    }
-    if (!AppValidator.isValidPassword(value)) {
-      return ConstantText.weakpassword;
-    }
+    if (value == null || value.isEmpty) return ConstantText.passwordisrequired;
+    if (!AppValidator.isValidPassword(value)) return ConstantText.weakpassword;
     return null;
   }
 
@@ -46,14 +44,21 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      error = await service.register(email, password);
+      
+      final result = await registerUseCase(email, password);
 
-      if (error == null) {
-        appFlowController.completeOnboarding();
-        return true;
-      }
-
-      return false;
+      
+      return result.fold(
+        (Failure failure) {
+          error = failure.message; 
+          return false;
+        },
+        (UserEntity user) {
+        
+          Supabase.instance.client.auth.signOut();
+          return true;
+        },
+      );
     } catch (e) {
       error = e.toString();
       return false;
@@ -62,31 +67,6 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  // // 🔥 Register
-  //   // 🔥 Register
-  // Future<bool> register(String email, String password) async {
-  //   isLoading = true;
-  //   error = null;
-  //   notifyListeners();
-
-  //   try {
-  //     error = await service.register(email, password);
-
-  //     if (error == null) {
-  //       appFlowController.completeOnboarding();
-
-  //       return true;
-  //     }
-
-  //     return false;
-  //   } catch (e) {
-  //     error = e.toString();
-  //     return false;
-  //   } finally {
-  //     isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
 
   // 🔥 Login
   Future<bool> login(String email, String password) async {
@@ -95,14 +75,19 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      error = await service.login(email, password);
+      
+      final result = await loginUseCase(email, password);
 
-      if (error == null) {
-        appFlowController.markAsLoggedIn();
-        return true;
-      }
-
-      return false;
+      return result.fold(
+        (Failure failure) {
+          error = failure.message;
+          return false;
+        },
+        (UserEntity user) {
+          appFlowController.markAsLoggedIn();
+          return true;
+        },
+      );
     } catch (e) {
       error = e.toString();
       return false;
@@ -114,10 +99,7 @@ class AuthProvider extends ChangeNotifier {
 
   // 🔥 Logout
   Future<void> logout() async {
-    await service.logout();
-    PreferencesManager().setBool('isLoggedIn', false);
-    // AppFlowController listener will handle routing back to login
-    notifyListeners();
+    await Supabase.instance.client.auth.signOut();
   }
 
   // 🔥 Supabase listener
