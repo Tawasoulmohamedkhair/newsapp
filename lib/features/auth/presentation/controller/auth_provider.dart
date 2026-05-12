@@ -5,11 +5,13 @@ import 'package:newsapp/core/state/app_flow_controller.dart';
 import 'package:newsapp/core/utils/validators/app_validator.dart';
 import 'package:newsapp/features/auth/domain/entities/user_entity.dart';
 import 'package:newsapp/features/auth/domain/usecase/login_usecase.dart';
-import 'package:newsapp/features/auth/domain/usecase/register_usecase.dart'; // تأكدي إن عندك الملف ده
+import 'package:newsapp/features/auth/domain/usecase/register_usecase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:newsapp/core/mixin/safe_notify.dart'; // import المكسين
 
-class AuthProvider extends ChangeNotifier {
-  
+class AuthProvider with ChangeNotifier, SafeNotify {
+
+
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
   final AppFlowController appFlowController;
@@ -41,20 +43,17 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> register(String email, String password) async {
     isLoading = true;
     error = null;
-    notifyListeners();
+    safeNotify(); 
 
     try {
-      
       final result = await registerUseCase(email, password);
 
-      
       return result.fold(
         (Failure failure) {
-          error = failure.message; 
+          error = failure.message;
           return false;
         },
         (UserEntity user) {
-        
           Supabase.instance.client.auth.signOut();
           return true;
         },
@@ -64,7 +63,7 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } finally {
       isLoading = false;
-      notifyListeners();
+      safeNotify(); 
     }
   }
 
@@ -72,10 +71,9 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> login(String email, String password) async {
     isLoading = true;
     error = null;
-    notifyListeners();
+    safeNotify(); 
 
     try {
-      
       final result = await loginUseCase(email, password);
 
       return result.fold(
@@ -93,7 +91,7 @@ class AuthProvider extends ChangeNotifier {
       return false;
     } finally {
       isLoading = false;
-      notifyListeners();
+      safeNotify();
     }
   }
 
@@ -105,7 +103,9 @@ class AuthProvider extends ChangeNotifier {
   // 🔥 Supabase listener
   void _listenAuth() {
     Supabase.instance.client.auth.onAuthStateChange.listen((event) {
-      notifyListeners();
+      safeNotify();
     });
   }
+
+
 }
