@@ -1,19 +1,61 @@
-class NewsArticleEntity {
+
+
+import 'package:equatable/equatable.dart';
+
+class NewsArticleEntity extends Equatable {
   final String? author;
-  final String? title;
+  final String title;
   final String? description;
   final String? url;
   final String? urlToImage;
-  final String? publishedAt;
+  final DateTime? publishedAt;
   final String? content;
+  
 
   const NewsArticleEntity({
-    required this.author,
+    this.author,
     required this.title,
-    required this.description,
-    required this.url,
-    required this.urlToImage,
-    required this.publishedAt,
-    required this.content,
+    this.description,
+    this.url,
+    this.urlToImage,
+    this.publishedAt,
+    this.content,
+    
   });
+
+  
+  NewsArticleEntity copyWith({
+    String? author,
+    String? title,
+    String? description,
+    String? url,
+    String? urlToImage,
+    DateTime? publishedAt,
+    String? content,
+  
+  }) {
+    return NewsArticleEntity(
+      author: author ?? this.author,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      url: url ?? this.url,
+      urlToImage: urlToImage ?? this.urlToImage,
+      publishedAt: publishedAt ?? this.publishedAt,
+      content: content ?? this.content,
+    
+    );
+  }
+
+  
+  @override
+  List<Object?> get props => [
+    author,
+    title,
+    description,
+    url,
+    urlToImage,
+    publishedAt,
+    content
+  
+  ];
 }

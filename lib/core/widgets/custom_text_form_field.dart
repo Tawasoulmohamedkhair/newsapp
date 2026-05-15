@@ -11,7 +11,7 @@ class CustomTextFormFields extends StatefulWidget {
     this.maxLines = 1,
     required this.hintText,
     this.suffixe,
-    this.obsecureText = false,
+    this.obscureText = false,
   });
   final String title;
   final TextEditingController controller;
@@ -19,7 +19,7 @@ class CustomTextFormFields extends StatefulWidget {
   final int? maxLines;
   final String? hintText;
   final Widget? suffixe;
-  final bool obsecureText;
+  final bool obscureText;
 
   @override
   State<CustomTextFormFields> createState() => _CustomTextFormFieldsState();
@@ -40,7 +40,7 @@ class _CustomTextFormFieldsState extends State<CustomTextFormFields> {
           height: AppSizes.h56,
           child: TextFormField(
             controller: widget.controller,
-            obscureText: widget.obsecureText && !isPasswordVisible,
+            obscureText: widget.obscureText && !isPasswordVisible,
             validator: widget.validator,
             style: Theme.of(context).textTheme.labelMedium,
 
@@ -60,7 +60,7 @@ class _CustomTextFormFieldsState extends State<CustomTextFormFields> {
                 borderRadius: BorderRadius.zero,
                 borderSide: BorderSide(color: Colors.grey.shade300),
               ),
-              suffixIcon: widget.obsecureText
+              suffixIcon: widget.obscureText
                   ? IconButton(
                       onPressed: () {
                         setState(() {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:newsapp/core/constant/constant_text.dart';
 import 'package:newsapp/core/enum/enum_status.dart';
-import 'package:newsapp/features/home/presentation/widgets/top_head_line_shimmer.dart';
 import 'package:newsapp/features/home/presentation/controller/home_controller.dart';
 import 'package:newsapp/features/home/presentation/widgets/news_item.dart';
 import 'package:provider/provider.dart';
+import 'package:skeletonizer/skeletonizer.dart'; // ✅
 
 class TopHeadLines extends StatelessWidget {
   const TopHeadLines({super.key});
@@ -13,25 +13,41 @@ class TopHeadLines extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<HomeController>(
       builder: (BuildContext context, controller, child) {
-        switch (controller.topHeadLinesStatus) {
-          case RequestStatusEnum.loading:
-            return TopHeadLineShimmer();
-          case RequestStatusEnum.error:
-            return SliverToBoxAdapter(
-              child: Center(
-                child: Text(controller.topHeadLinesError ?? ConstantText.anerroroccurred),
+        
+        if (controller.topHeadLinesStatus == RequestStatusEnum.error) {
+          return SliverToBoxAdapter(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  controller.topHeadLinesError ?? ConstantText.anerroroccurred,
+                ),
               ),
-            );
-          case RequestStatusEnum.loaded:
-            return SliverList.builder(
-              itemCount: controller.newsTopHeadLinesList.length,
-              itemBuilder: (BuildContext context, int index) {
-                final article = controller.newsTopHeadLinesList[index];
-              return   NewsItems(article: article);
-                
-              },
-            );
+            ),
+          );
         }
+        final isLoading =
+            controller.topHeadLinesStatus == RequestStatusEnum.loading;
+
+        return Skeletonizer.sliver(
+          
+          enabled: isLoading,
+          ignoreContainers: true, 
+          effect: ShimmerEffect(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+          ),
+          child: SliverList.builder(
+            itemCount: isLoading ? 6 : controller.newsTopHeadLinesList.length,
+            itemBuilder: (BuildContext context, int index) {
+              if (isLoading) {
+                return const NewsItems.skeleton(); 
+              }
+              final article = controller.newsTopHeadLinesList[index];
+              return NewsItems(article: article);
+            },
+          ),
+        );
       },
     );
   }

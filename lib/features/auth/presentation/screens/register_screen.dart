@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:newsapp/core/constant/app_sizes.dart';
 import 'package:newsapp/core/constant/constant_text.dart';
 import 'package:newsapp/core/di/service_locator.dart';
@@ -25,7 +24,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
   final GlobalKey<FormState> keyform = GlobalKey<FormState>();
 
-  final AuthProvider authProvider = getIt<AuthProvider>();
+  late final AuthProvider authProvider;
+  @override
+  void initState() {
+    super.initState();
+    authProvider = getIt<AuthProvider>();
+  }
 
   @override
   void dispose() {
@@ -44,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             padding: EdgeInsets.all(AppSizes.pw16),
             child: Form(
               key: keyform,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -64,7 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     title: ConstantText.password,
                     controller: passwordController,
                     validator: authProvider.validatePassword,
-                    obsecureText: true,
+                    obscureText: true,
                   ),
                   SizedBox(height: AppSizes.ph20),
 
@@ -76,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       value,
                       passwordController.text,
                     ),
-                    obsecureText: true,
+                    obscureText: true,
                   ),
                   SizedBox(height: AppSizes.ph20),
 
@@ -108,7 +113,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         backgroundColor: Colors.green,
                                       ),
                                     );
-                                    context.go('/login');
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -130,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : Text(ConstantText.signup),
+                              : const Text(ConstantText.signup),
                         ),
                       );
                     },

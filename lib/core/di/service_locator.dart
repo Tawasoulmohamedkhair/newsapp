@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:newsapp/core/datasource/remoteData/api_service.dart';
+import 'package:newsapp/core/datasource/remoteData/news_remote_data_source.dart';
 import 'package:newsapp/core/network/dio_logging_interceptor.dart';
 import 'package:newsapp/core/router/go_router.dart'; // تأكدي إن هنا فيه الـ routes
 import 'package:newsapp/core/router/go_router_refresh.dart';
@@ -58,6 +59,10 @@ Future<void> setupLocator() async {
   // ✅ بنسجل الـ Router باستخدام الدالة اللي عملناها في ملف go_router.dart
   // ولا تنسي تعملي import لملف go_router.dart هنا
   getIt.registerLazySingleton<GoRouter>(() => createRouter());
+  // ====================== Data Sources ======================
+  getIt.registerLazySingleton<NewsRemoteDataSource>(
+    () => NewsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
 
   // ===================== ONBOARDING FEATURE =====================
   // Data Sources

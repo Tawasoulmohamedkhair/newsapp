@@ -27,12 +27,24 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          const TrendingNews(),
-          const CategoriesWidget(),
-          const TopHeadLines(),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final controller = context.read<HomeController>();
+        
+          await Future.wait([
+            controller.getTopHeadLines(),
+            controller.getEveryThing(),
+          ]);
+        },
+
+        child: CustomScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          slivers: [
+            const TrendingNews(),
+            const CategoriesWidget(),
+            const TopHeadLines(),
+          ],
+        ),
       ),
     );
   }

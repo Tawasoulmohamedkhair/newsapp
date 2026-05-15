@@ -20,7 +20,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final authProvider = getIt<AuthProvider>();
+  late final AuthProvider authProvider;
+   @override
+  void initState() {
+    super.initState();
+    
+    authProvider = getIt<AuthProvider>();
+  }
 
   @override
   void dispose() {
@@ -54,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     title: ConstantText.password,
                     hintText: '••••••••',
                     controller: passwordController,
-                    obsecureText: true,
+                    obscureText: true,
                     validator: authProvider.validatePassword,
                   ),
                   SizedBox(height: AppSizes.ph20),
@@ -73,8 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     return;
                                   }
                                   final success = await authProvider.login(
-                                    emailController.text,
-                                    passwordController.text,
+                                    emailController.text.trim(),
+                                    passwordController.text.trim(),
                                   );
                                   if (!success &&
                                       authProvider.error != null &&

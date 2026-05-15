@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:newsapp/core/constant/constant_text.dart';
 import 'package:newsapp/core/error/failure.dart';
@@ -7,14 +8,14 @@ import 'package:newsapp/features/auth/domain/entities/user_entity.dart';
 import 'package:newsapp/features/auth/domain/usecase/login_usecase.dart';
 import 'package:newsapp/features/auth/domain/usecase/register_usecase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:newsapp/core/mixin/safe_notify.dart'; // import المكسين
+import 'package:newsapp/core/mixin/safe_notify.dart';
 
 class AuthProvider with ChangeNotifier, SafeNotify {
-
-
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
   final AppFlowController appFlowController;
+
+  late final StreamSubscription<AuthState> _authSubscription;
 
   AuthProvider({
     required this.loginUseCase,
@@ -27,9 +28,19 @@ class AuthProvider with ChangeNotifier, SafeNotify {
   bool isLoading = false;
   String? error;
 
+  @override
+  void dispose() {
+    _authSubscription.cancel();
+    super.dispose();
+  }
+
   String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) return ConstantText.emailisrequired;
-    if (!AppValidator.isValidEmail(value)) return ConstantText.enteravalidemail;
+    if (value == null || value.trim().isEmpty) {
+      return ConstantText.emailisrequired;
+    }
+    if (!AppValidator.isValidEmail(value.trim())) {
+      return ConstantText.enteravalidemail;
+    }
     return null;
   }
 
@@ -43,7 +54,7 @@ class AuthProvider with ChangeNotifier, SafeNotify {
   Future<bool> register(String email, String password) async {
     isLoading = true;
     error = null;
-    safeNotify(); 
+    safeNotifyListeners();
 
     try {
       final result = await registerUseCase(email, password);
@@ -53,8 +64,8 @@ class AuthProvider with ChangeNotifier, SafeNotify {
           error = failure.message;
           return false;
         },
-        (UserEntity user) {
-          Supabase.instance.client.auth.signOut();
+        (UserEntity user) async {
+          await Supabase.instance.client.auth.signOut();
           return true;
         },
       );
@@ -63,7 +74,7 @@ class AuthProvider with ChangeNotifier, SafeNotify {
       return false;
     } finally {
       isLoading = false;
-      safeNotify(); 
+      safeNotifyListeners();
     }
   }
 
@@ -71,7 +82,7 @@ class AuthProvider with ChangeNotifier, SafeNotify {
   Future<bool> login(String email, String password) async {
     isLoading = true;
     error = null;
-    safeNotify(); 
+    safeNotifyListeners();
 
     try {
       final result = await loginUseCase(email, password);
@@ -91,21 +102,30 @@ class AuthProvider with ChangeNotifier, SafeNotify {
       return false;
     } finally {
       isLoading = false;
-      safeNotify();
+      safeNotifyListeners();
     }
   }
 
-  // 🔥 Logout
   Future<void> logout() async {
-    await Supabase.instance.client.auth.signOut();
+    isLoading = true;
+    error = null;
+    safeNotifyListeners();
+    try {
+      await Supabase.instance.client.auth.signOut();
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      isLoading = false;
+      safeNotifyListeners();
+    }
   }
 
   // 🔥 Supabase listener
   void _listenAuth() {
-    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
-      safeNotify();
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((
+      data,
+    ) {
+      safeNotifyListeners();
     });
   }
-
-
 }

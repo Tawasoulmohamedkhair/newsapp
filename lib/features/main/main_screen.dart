@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:newsapp/features/bookmark/book_mark_screen.dart';
 import 'package:newsapp/features/home/presentation/screen/home_screen.dart';
 import 'package:newsapp/features/profile/profile_screen.dart';
-import 'package:newsapp/features/search/search_screen.dart';
+import 'package:newsapp/features/search/presentation/screen/search_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> screens = [
     HomeScreen(),
     const BookMarkScreen(),
-    const SearchScreen(),
+    SearchScreen(),
     const ProfileScreen(),
   ];
 
