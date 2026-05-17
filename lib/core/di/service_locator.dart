@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:newsapp/core/datasource/remoteData/api_service.dart';
 import 'package:newsapp/core/datasource/remoteData/news_remote_data_source.dart';
 import 'package:newsapp/core/network/dio_logging_interceptor.dart';
-import 'package:newsapp/core/router/go_router.dart'; // تأكدي إن هنا فيه الـ routes
+import 'package:newsapp/core/router/go_router.dart'; 
 import 'package:newsapp/core/router/go_router_refresh.dart';
 import 'package:newsapp/core/services/auth_service.dart';
 import 'package:newsapp/core/state/app_flow_controller.dart';
@@ -24,16 +24,23 @@ import 'package:newsapp/features/onboarding/domain/repositories/onboarding_repos
 import 'package:newsapp/features/onboarding/domain/usecases/complete_onboarding.dart';
 import 'package:newsapp/features/onboarding/domain/usecases/getonboarding_data.dart';
 import 'package:newsapp/features/onboarding/presentation/controller/onboarding_controller.dart';
+import 'package:newsapp/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:newsapp/features/profile/domain/repositories/profile_repository.dart';
+import 'package:newsapp/features/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:newsapp/features/profile/domain/usecases/upload_profile_image_usecase.dart';
+import 'package:newsapp/features/profile/presentation/controller/profile_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
 
 Future<void> setupLocator() async { 
   // ===================== Core / External =====================
+  getIt.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
   final prefs = await SharedPreferences.getInstance();
-  getIt.registerLazySingleton<SharedPreferences>(() => prefs);
+   getIt.registerLazySingleton<SharedPreferences>(() => prefs);
 
-  getIt.registerLazySingleton<Dio>(() {
+   getIt.registerLazySingleton<Dio>(() {
     final dio = Dio(
       BaseOptions(
         baseUrl: 'https://newsapi.org',
@@ -45,60 +52,58 @@ Future<void> setupLocator() async {
     return dio;
   });
 
-  getIt.registerLazySingleton<ApiService>(() => ApiService(getIt()));
+   getIt.registerLazySingleton<ApiService>(() => ApiService( getIt()));
 
   // ===================== State & Routing =====================
-  getIt.registerLazySingleton<AuthService>(() => AuthService());
+   getIt.registerLazySingleton<AuthService>(() => AuthService());
 
-  getIt.registerLazySingleton<GoRouterRefreshStream>(
+   getIt.registerLazySingleton<GoRouterRefreshStream>(
     () => GoRouterRefreshStream(),
   );
 
- getIt.registerLazySingleton<AppFlowController>(() => AppFlowController());
+  getIt.registerLazySingleton<AppFlowController>(() => AppFlowController());
 
-  // ✅ بنسجل الـ Router باستخدام الدالة اللي عملناها في ملف go_router.dart
-  // ولا تنسي تعملي import لملف go_router.dart هنا
-  getIt.registerLazySingleton<GoRouter>(() => createRouter());
+   getIt.registerLazySingleton<GoRouter>(() => createRouter());
   // ====================== Data Sources ======================
-  getIt.registerLazySingleton<NewsRemoteDataSource>(
-    () => NewsRemoteDataSourceImpl(getIt<ApiService>()),
+   getIt.registerLazySingleton<NewsRemoteDataSource>(
+    () => NewsRemoteDataSourceImpl( getIt<ApiService>()),
   );
 
   // ===================== ONBOARDING FEATURE =====================
   // Data Sources
-  getIt.registerLazySingleton<OnboardingLocalDataSource>(
+   getIt.registerLazySingleton<OnboardingLocalDataSource>(
     () => OnboardingLocalDataSourceImpl(),
   );
   // Repositories
-  getIt.registerLazySingleton<OnboardingRepository>(
-    () => OnboardingRepositoryImpl(getIt()),
+   getIt.registerLazySingleton<OnboardingRepository>(
+    () => OnboardingRepositoryImpl( getIt()),
   );
   // Use Cases
-  getIt.registerLazySingleton(() => GetOnboardingData(getIt()));
-  getIt.registerLazySingleton(() => CompleteOnboarding(getIt()));
+   getIt.registerLazySingleton(() => GetOnboardingData( getIt()));
+   getIt.registerLazySingleton(() => CompleteOnboarding( getIt()));
   // Controllers
-  getIt.registerFactory<OnboardingController>(
+   getIt.registerFactory<OnboardingController>(
     () => OnboardingController(
-      appFlowController: getIt(),
-      getOnboardingDataUseCase: getIt(),
-      goRouter: getIt(),
+      appFlowController:  getIt(),
+      getOnboardingDataUseCase:  getIt(),
+      goRouter:  getIt(),
     ),
   );
 
   // ===================== AUTH FEATURE =====================
   // Repositories
-  getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(getIt()),
+   getIt.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl( getIt()),
   );
-    getIt.registerLazySingleton(() => LoginUseCase(getIt()));
-  getIt.registerLazySingleton(() => RegisterUseCase(getIt()));
+     getIt.registerLazySingleton(() => LoginUseCase( getIt()));
+   getIt.registerLazySingleton(() => RegisterUseCase( getIt()));
 
-  // ✅ Controllers / Providers (بعد ما سجلنا الـ Use Cases فوق)
-  getIt.registerFactory(
+  
+   getIt.registerFactory(
     () => AuthProvider(
-      loginUseCase: getIt(), // ← بنحقن الـ Use Case
-      registerUseCase: getIt(), // ← بنحقن الـ Use Case
-      appFlowController: getIt(),
+      loginUseCase:  getIt(), 
+      registerUseCase:  getIt(), 
+      appFlowController:  getIt(),
     ),
   );
   // Controllers / Providers
@@ -106,17 +111,44 @@ Future<void> setupLocator() async {
 
   // ===================== HOME FEATURE =====================
   // Repositories
-  getIt.registerLazySingleton<HomeRepository>(
-    () => HomeRepositoryImpl(getIt()),
+   getIt.registerLazySingleton<HomeRepository>(
+    () => HomeRepositoryImpl( getIt()),
   );
   // Use Cases
-  getIt.registerLazySingleton(() => GetEverythingUseCase(getIt()));
-  getIt.registerLazySingleton(() => GetTopHeadlinesUseCase(getIt()));
+   getIt.registerLazySingleton(() => GetEverythingUseCase( getIt()));
+   getIt.registerLazySingleton(() => GetTopHeadlinesUseCase( getIt()));
   // Controllers
-  getIt.registerFactory<HomeController>(
+   getIt.registerFactory<HomeController>(
     () => HomeController(
-      getEverythingUseCase: getIt(),
-      getTopHeadlinesUseCase: getIt(),
+      getEverythingUseCase:  getIt(),
+      getTopHeadlinesUseCase:  getIt(),
+    ),
+  );
+  // ====================== Features - Profile ======================
+  getIt.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      supabase: getIt<SupabaseClient>(),
+      prefs:
+          getIt<
+            SharedPreferences
+          >(), 
+    ),
+  );
+
+   getIt.registerLazySingleton<UpdateProfileUseCase>(
+    () => UpdateProfileUseCase( getIt<ProfileRepository>()),
+  );
+
+  getIt.registerLazySingleton<UploadProfileImageUseCase>(
+    () => UploadProfileImageUseCase( getIt<ProfileRepository>()),
+  );
+
+   getIt.registerFactory<ProfileController>(
+    () => ProfileController(
+      updateProfileUseCase:  getIt<UpdateProfileUseCase>(),
     ),
   );
 }
+
+
+

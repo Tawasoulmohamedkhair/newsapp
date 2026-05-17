@@ -13,7 +13,7 @@ class SearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<NewsSearchController>(
       create: (_) => NewsSearchController(
-        getEverythingUseCase: getIt<GetEverythingUseCase>(),
+        getEverythingUseCase: getIt<GetEverythingUseCase>(), searchNewsUseCase: getIt(),
       ),
       child: const SearchView(),
     );

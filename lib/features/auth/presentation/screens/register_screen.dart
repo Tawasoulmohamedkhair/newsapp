@@ -28,7 +28,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    authProvider = getIt<AuthProvider>();
+    authProvider =  getIt<AuthProvider>();
+    
   }
 
   @override

@@ -13,9 +13,8 @@ class AppFlowController extends ChangeNotifier {
   bool get onboardingCompleted => _onboardingCompleted;
 
   Future<void> init() async {
-    final prefs = getIt<SharedPreferences>();
+    final prefs =getIt<SharedPreferences>();
     _onboardingCompleted = prefs.getBool('is_onboarding_finished_v3') ?? false;
-   
 
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (_status == AppStatus.loading) return;
@@ -42,12 +41,11 @@ class AppFlowController extends ChangeNotifier {
   }
 
   Future<void> completeOnboarding() async {
-    final prefs = getIt<SharedPreferences>();
+    final prefs =getIt<SharedPreferences>();
     // ✅ بنحفظ بنفس الـ Key الجديد
     await prefs.setBool('is_onboarding_finished_v3', true);
     _onboardingCompleted = true;
 
-    
     final session = Supabase.instance.client.auth.currentSession;
     _status = session != null ? AppStatus.loggedIn : AppStatus.loggedOut;
     notifyListeners();
@@ -55,6 +53,10 @@ class AppFlowController extends ChangeNotifier {
 
   Future<void> logout() async {
     await Supabase.instance.client.auth.signOut();
+
+
+    _status = AppStatus.loggedOut;
+    notifyListeners();
   }
 
   void markAsLoggedIn() {

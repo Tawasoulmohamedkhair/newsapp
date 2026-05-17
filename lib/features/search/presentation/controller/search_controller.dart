@@ -3,11 +3,12 @@ import 'package:newsapp/core/enum/enum_status.dart';
 import 'package:newsapp/core/mixin/safe_notify.dart';
 import 'package:newsapp/features/home/domain/entities/news_article_entity.dart';
 import 'package:newsapp/features/home/domain/usecases/get_everything_usecase.dart';
+import 'package:newsapp/features/search/domain/usecase/search_news_use_case.dart';
 
 class NewsSearchController extends ChangeNotifier with SafeNotify {
   final GetEverythingUseCase getEverythingUseCase;
 
-  NewsSearchController({required this.getEverythingUseCase});
+  NewsSearchController({required this.getEverythingUseCase, required SearchNewsUseCase searchNewsUseCase});
 
   // State Variables
   RequestStatusEnum searchStatus = RequestStatusEnum.initial;
